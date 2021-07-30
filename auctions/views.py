@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.forms import ModelForm
+from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionItem, Comment, Category, Bid
 
@@ -71,11 +72,28 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
+# TODO: add redirects from login using @login_required decorator
 def new_auction(request):
 
     if request.method == 'POST':
         # retrieve form data and create a new auction item in the database
-        pass
+        form = AuctionItemForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            auction_item = form.save(commit=False)
+            auction_item.creator = User.objects.get(pk=request.user.id)
+            auction_item.save()
+
+            # TODO: redirect user to auction page
+            # return HttpResponseRedirect(reverse('auction_item', args=[auction_item.id]))
+            return HttpResponseRedirect(reverse('index'))
+
+        else:
+            message = "There was an error creating your auction."
+            return render(request, "auctions/new_auction.html", {
+                'message': message,
+                'auction_item_form': form
+            })
 
     else:
         # render create form template (depending on whether user in authenticated

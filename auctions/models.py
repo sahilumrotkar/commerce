@@ -1,3 +1,4 @@
+from commerce.settings import BASE_DIR
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.fields.related import ManyToManyField
@@ -5,7 +6,8 @@ import os
 
 
 def get_image_path(instance, filename):
-    return os.path.join('images', str(instance.id), filename)
+    # return os.path.join(BASE_DIR, 'uploads', str(instance.creator.username), filename)
+    return os.path.join(str(instance.creator.username), filename)
 
 
 class User(AbstractUser):
@@ -16,7 +18,8 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return f"User {self.pk}: {self.first_name} {self.last_name}"
+        # return f"{self.first_name} {self.last_name}"
+        return f"{self.username}"
 
 
 class Category(models.Model):
@@ -59,7 +62,7 @@ class AuctionItem(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Item: {self.title} listed by {self.creator.first_name}"
+        return f"Item: {self.title} listed by {self.creator.username}"
 
 
 class Bid(models.Model):
@@ -78,7 +81,7 @@ class Bid(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Bid {self.id}: {self.creator.first_name} bids ${self.price} on {self.auction_item.title}"
+        return f"Bid {self.id}: {self.creator.username} bids ${self.price} on {self.auction_item.title}"
 
     def get_highest_bid():
         return Bid.objects.latest('creation_date')
@@ -100,4 +103,4 @@ class Comment(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment: {self.text}, made by {self.creator.first_name}"
+        return f"Comment: {self.text}, made by {self.creator.username}"

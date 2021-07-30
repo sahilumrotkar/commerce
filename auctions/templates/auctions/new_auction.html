@@ -9,7 +9,7 @@ New Auction
 <h2>Create New Auction</h2>
 
 {% if user.is_authenticated %}
-<form action="{% url 'new_auction' %" method="POST">
+<form action="{% url 'new_auction' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ auction_item_form.as_p }}
     <input type="submit" value="Create">
