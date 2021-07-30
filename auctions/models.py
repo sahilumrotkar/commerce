@@ -23,7 +23,7 @@ class Category(models.Model):
     name = models.CharField(max_length=64)
 
     def __str__(self):
-        return f"Category: {self.name}"
+        return f"{self.name}"
 
 
 class AuctionItem(models.Model):
@@ -74,9 +74,14 @@ class Bid(models.Model):
         related_name='bids'
     )
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    # TODO: Add code to controller to display creation date in user's timezone
+    creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Bid {self.id}: {self.creator.first_name} bids ${self.price} on {self.auction_item.title}"
+
+    def get_highest_bid():
+        return Bid.objects.latest('creation_date')
 
 
 class Comment(models.Model):

@@ -1,0 +1,21 @@
+{% extends 'auctions/layout.html' %}
+
+{% block title %}
+New Auction
+{% endblock %}
+
+{% block body %}
+
+<h2>Create New Auction</h2>
+
+{% if user.is_authenticated %}
+<form action="{% url 'new_auction' %" method="POST">
+    {% csrf_token %}
+    {{ auction_item_form.as_p }}
+    <input type="submit" value="Create">
+</form>
+{% else %}
+<p>Please <a href="{% url 'login' %}">sign in</a> to create a new auction.</p>
+{% endif %}
+
+{% endblock %}
