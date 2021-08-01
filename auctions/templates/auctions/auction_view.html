@@ -1,0 +1,51 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+{{ auction_item.title }}
+{% endblock %}
+
+{% block body %}
+
+{% if message %}
+<div><strong>{{ message }}</strong></div>
+{% endif %}
+
+<h2>{{ auction_item.title }}</h2>
+
+<img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" width="250" height="250">
+<p>{{ auction_item.description }}</p>
+
+<p><strong>Current Price: ${{ auction_item.current_price }}</strong></p>
+
+<p>{{ total_bids }} bid(s) have been placed so far</p>
+<form action="{% url 'auction_view' auction_item.id %}" method="post">
+    {% csrf_token %}
+    {{ bid_form.as_p }}
+    <input type="submit" value="Place Bid">
+</form>
+&nbsp;
+<h3>Details</h3>
+<ul>
+    <li>Listed by {{ auction_item.creator.username }}</li>
+    <li>Posted on {{ auction_item.creation_date }}</li>
+</ul>
+
+<h3>Comments</h3>
+<ul style="list-style-type: none;">
+    {% for comment in auction_item.comments.all %}
+    <li>
+        <strong>{{ comment.creator.username }}</strong>
+        [{{ comment.creation_date }}]
+        <p>{{ comment.text }}</p>
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="{% url 'new_comment' auction_item.id %}" method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <input type="submit" value="Post Comment">
+</form>
+
+
+{% endblock %}
