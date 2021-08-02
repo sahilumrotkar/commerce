@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import fields
 from django.http import HttpResponse, HttpResponseRedirect
@@ -17,12 +18,38 @@ class AuctionItemForm(ModelForm):
 
 
 class BidForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.old_price = kwargs.get('old_price', None)
+        if self.old_price is not None:
+            kwargs.pop('old_price')
+        super(BidForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Bid
         exclude = ['creator', 'auction_item', 'creation_date']
         labels = {
             'price': "Bid Amount"
         }
+        widgets = {
+            'price': widgets.Input(attrs={
+                'title': "Value must be greater than current price",
+                'type': 'number',
+                'step': '0.01'
+            })
+        }
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+
+        # perform validation on price
+        if price < 0:
+            raise ValidationError("Amount must be greater than zero.")
+
+        if self.old_price is not None and price <= self.old_price:
+            raise ValidationError(
+                "Amount must be greater than the current price.")
+
+        return price
 
 
 class CommentForm(ModelForm):
@@ -127,7 +154,7 @@ def auction_view(request, id):
     # TODO: Ensure bid amount is greater than current price of item
     if request.method == 'POST':
         auction_item = AuctionItem.objects.get(pk=id)
-        bid_form = BidForm(request.POST)
+        bid_form = BidForm(request.POST, old_price=auction_item.current_price)
         if bid_form.is_valid():
             bid = bid_form.save(commit=False)
             bid.creator = request.user
@@ -143,7 +170,7 @@ def auction_view(request, id):
                 'bid_form': bid_form,
                 'total_bids': AuctionItem.objects.get(pk=id).bids.count(),
                 # TODO: in message, add link to direct user to their bids placed page
-                'message': "Bid created successfully.",
+                'success_message': "Bid created successfully.",
                 'comment_form': CommentForm()
             })
 
@@ -151,8 +178,8 @@ def auction_view(request, id):
             return render(request, "auctions/auction_view.html", {
                 'auction_item': auction_item,
                 'bid_form': bid_form,
-                'total_bids': Bid.objects.all().count(),
-                'message': "Error placing bid.",
+                'total_bids': AuctionItem.objects.get(pk=id).bids.count(),
+                'error_message': "Error placing bid.",
                 'comment_form': CommentForm()
             })
 

@@ -6,13 +6,19 @@
 
 {% block body %}
 
-{% if message %}
-<div><strong>{{ message }}</strong></div>
+{% if error_message %}
+<p style="color: red;"><strong>{{ error_message }}</strong></p>
+{% endif %}
+
+{% if success_message %}
+<p style="color: green;"><strong>{{ success_message }}</strong></p>
 {% endif %}
 
 <h2>{{ auction_item.title }}</h2>
 
-<img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" width="250" height="250">
+<img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" style="object-fit: contain;" width="400px"
+    height="300px">
+
 <p>{{ auction_item.description }}</p>
 
 <p><strong>Current Price: ${{ auction_item.current_price }}</strong></p>
@@ -21,6 +27,10 @@
 <form action="{% url 'auction_view' auction_item.id %}" method="post">
     {% csrf_token %}
     {{ bid_form.as_p }}
+
+    <!-- {% for error in bid_form.price.errors %}
+    <p style="color: red;">{{ error }}</p>
+    {% endfor %} -->
     <input type="submit" value="Place Bid">
 </form>
 &nbsp;
@@ -36,7 +46,7 @@
     <li>
         <strong>{{ comment.creator.username }}</strong>
         [{{ comment.creation_date }}]
-        <p>{{ comment.text }}</p>
+        <p>{{ comment.text|linebreaksbr }}</p>
     </li>
     {% endfor %}
 </ul>
