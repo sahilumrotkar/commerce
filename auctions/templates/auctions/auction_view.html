@@ -23,7 +23,7 @@
 
 <p><strong>Current Price: ${{ auction_item.current_price }}</strong></p>
 
-<p>{{ total_bids }} bid(s) have been placed so far</p>
+<p>{{ total_bids }} bid{{ total_bids|pluralize }} have been placed so far</p>
 <form action="{% url 'auction_view' auction_item.id %}" method="post">
     {% csrf_token %}
     {{ bid_form.as_p }}
@@ -37,7 +37,7 @@
 <h3>Details</h3>
 <ul>
     <li>Listed by {{ auction_item.creator.username }}</li>
-    <li>Posted on {{ auction_item.creation_date }}</li>
+    <li>Posted on {{ auction_item.creation_date|date:"l, F j Y" }} at {{ auction_item.creation_date|time }}</li>
 </ul>
 
 <h3>Comments</h3>
@@ -45,7 +45,8 @@
     {% for comment in auction_item.comments.all %}
     <li>
         <strong>{{ comment.creator.username }}</strong>
-        [{{ comment.creation_date }}]
+        <!-- [{{ comment.creation_date }}] -->
+        on {{ comment.creation_date|date:"l, F j Y" }} at {{ comment.creation_date|time }}
         <p>{{ comment.text|linebreaksbr }}</p>
     </li>
     {% endfor %}

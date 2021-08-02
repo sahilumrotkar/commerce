@@ -65,7 +65,11 @@ class CommentForm(ModelForm):
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    auction_items = AuctionItem.objects.all()
+    return render(request, "auctions/auction_list_view.html", {
+        'auction_list': auction_items,
+        'title': "Active Listings"
+    })
 
 
 def login_view(request):
@@ -222,3 +226,21 @@ def new_comment(request, auction_id):
     else:
         # TODO: render 403 forbidden template
         pass
+
+
+def categories(request):
+
+    return render(request, "auctions/categories.html", {
+        'categories': Category.objects.all()
+    })
+
+
+def category_view(request, category_name):
+
+    category = Category.objects.filter(name=category_name).first()
+    auction_items = category.auction_items.all()
+
+    return render(request, "auctions/auction_list_view.html", {
+        'auction_list': auction_items,
+        'title': category_name
+    })
