@@ -244,3 +244,56 @@ def category_view(request, category_name):
         'auction_list': auction_items,
         'title': category_name
     })
+
+
+def watchlist_view(request, user_id):
+
+    user_qs = User.objects.filter(pk=user_id)
+
+    if user_qs:
+        user = user_qs.first()
+        watchlist = user.watching.all()
+
+        return render(request, "auctions/auction_list_view.html", {
+            'auction_list': watchlist,
+            'title': "Watchlist"
+        })
+
+    else:
+        # TODO: render 404 page
+        pass
+
+
+def update_watchlist(request, user_id, auction_id):
+
+    if request.method == 'POST':
+        user_qs = User.objects.filter(pk=user_id)
+        auction_item_qs = AuctionItem.objects.filter(pk=auction_id)
+
+        if user_qs and auction_item_qs:
+            user = user_qs.first()
+            auction_item = auction_item_qs.first()
+
+            watchlist = user.watching.all()
+            if auction_item in watchlist:
+                user.watching.remove(auction_item)
+                message = "Removed from Watchlist Successfully"
+            else:
+                user.watching.add(auction_item)
+                message = "Added to Watchlist Successfully"
+
+            return render(request, "auctions/auction_view.html", {
+                'auction_item': auction_item,
+                'bid_form': BidForm(),
+                'total_bids': auction_item.bids.count(),
+                'comment_form': CommentForm(),
+                'success_message': message
+            })
+
+        else:
+            # TODO: forbidden
+            pass
+
+    else:
+        # TODO: render 403 forbidden template
+        pass

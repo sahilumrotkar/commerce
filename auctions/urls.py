@@ -15,5 +15,8 @@ urlpatterns = [
          views.new_comment, name="new_comment"),
     path("categories", views.categories, name="categories"),
     path("categories/<str:category_name>",
-         views.category_view, name='category_view')
+         views.category_view, name='category_view'),
+    path("<int:user_id>/watchlist/update/<int:auction_id>",
+         views.update_watchlist, name='update_watchlist'),
+    path("<int:user_id>/watchlist", views.watchlist_view, name='watchlist_view')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
