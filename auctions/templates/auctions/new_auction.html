@@ -12,7 +12,9 @@ New Auction
 <form action="{% url 'new_auction' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ auction_item_form.as_p }}
-    <input type="submit" value="Create">
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Create">
 </form>
 {% else %}
 <p>Please <a href="{% url 'login' %}">sign in</a> to create a new auction.</p>

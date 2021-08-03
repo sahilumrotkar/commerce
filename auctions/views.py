@@ -9,12 +9,22 @@ from django.forms import ModelForm, widgets, Textarea
 from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionItem, Comment, Category, Bid
+from datetime import datetime
 
 
 class AuctionItemForm(ModelForm):
     class Meta:
         model = AuctionItem
-        exclude = ['creator', 'is_active', 'winner', 'creation_date']
+        exclude = ['creator', 'is_active', 'winner',
+                   'creation_date', 'closing_date']
+        # widgets = {
+        #     'item_image': widgets.Input(attrs={
+        #         'type': "file",
+        #         'name': "item_image",
+        #         'accept': "image/*",
+        #         'style': "border-style: solid; padding: 7px; border-radius: 5px;"
+        #     })
+        # }
 
 
 class BidForm(ModelForm):
@@ -65,7 +75,7 @@ class CommentForm(ModelForm):
 
 
 def index(request):
-    auction_items = AuctionItem.objects.all()
+    auction_items = AuctionItem.objects.filter(is_active=True)
     return render(request, "auctions/auction_list_view.html", {
         'auction_list': auction_items,
         'title': "Active Listings"
@@ -155,7 +165,6 @@ def new_auction(request):
 
 
 def auction_view(request, id):
-    # TODO: Ensure bid amount is greater than current price of item
     if request.method == 'POST':
         auction_item = AuctionItem.objects.get(pk=id)
         bid_form = BidForm(request.POST, old_price=auction_item.current_price)
@@ -296,4 +305,34 @@ def update_watchlist(request, user_id, auction_id):
 
     else:
         # TODO: render 403 forbidden template
+        pass
+
+
+def close_auction(request, auction_id):
+
+    if request.method == 'POST':
+        auction_item_qs = AuctionItem.objects.filter(pk=auction_id)
+
+        if auction_item_qs:
+            auction_item = auction_item_qs.first()
+            winner = auction_item.get_highest_bid().creator
+            auction_item.winner = winner
+            auction_item.closing_date = datetime.now()
+            auction_item.is_active = False
+            auction_item.save()
+
+            return render(request, "auctions/auction_view.html", {
+                'auction_item': auction_item,
+                'bid_form': BidForm(),
+                'total_bids': auction_item.bids.count(),
+                'comment_form': CommentForm(),
+                'success_message': "Auction has been closed successfully"
+            })
+
+        else:
+            # TODO: forbidden
+            pass
+
+    else:
+        # TODO: render forbidden template
         pass

@@ -60,9 +60,13 @@ class AuctionItem(models.Model):
     )
     # TODO: Add code to controller to display creation date in user's timezone
     creation_date = models.DateTimeField(auto_now_add=True)
+    closing_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"Item: {self.title} listed by {self.creator.username}"
+
+    def get_highest_bid(self):
+        return self.bids.latest('creation_date')
 
 
 class Bid(models.Model):
@@ -82,9 +86,6 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"Bid {self.id}: {self.creator.username} bids ${self.price} on {self.auction_item.title}"
-
-    def get_highest_bid():
-        return Bid.objects.latest('creation_date')
 
 
 class Comment(models.Model):

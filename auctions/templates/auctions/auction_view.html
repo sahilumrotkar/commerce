@@ -14,47 +14,79 @@
 <p style="color: green;"><strong>{{ success_message }}</strong></p>
 {% endif %}
 
-<h2>{{ auction_item.title }}</h2>
+<h2>
+    {{ auction_item.title }}
+    {% if auction_item.is_active is not True %}
+    (Closed)
+    {% endif %}
+</h2>
 
 {% if user in auction_item.watched_by.all %}
 <p style="background-color: lightgreen; width: 87px; padding: 9px; border-radius: 5px;">Watching</p>
 <form action="{% url 'update_watchlist' user.id auction_item.id %}" method="post">
     {% csrf_token %}
-    <input type="submit" value="Remove From Watchlist">
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Remove From Watchlist">
 </form>
 {% else %}
 <p style="background-color: lightcoral; width: 117px; padding: 9px; border-radius: 5px;">Not Watching</p>
 <form action="{% url 'update_watchlist' user.id auction_item.id %}" method="post">
     {% csrf_token %}
-    <input type="submit" value="Add To Watchlist">
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Add To Watchlist">
 </form>
 {% endif %}
 
 
-
-<img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" style="object-fit: contain;" width="400px"
-    height="300px">
+&nbsp;
+<img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" style="padding: 12px; object-fit: contain;"
+    width="400px" height="300px">
 
 <p>{{ auction_item.description }}</p>
 
-<p><strong>Current Price: ${{ auction_item.current_price }}</strong></p>
+<p>
+    <strong>
+        {% if auction_item.is_active is True %}
+        Current Price: ${{ auction_item.current_price }}
+        {% else %}
+        Sold For ${{ auction_item.current_price }} to {{ auction_item.winner.username }}
+        {% endif %}
+    </strong>
+</p>
 
+{% if auction_item.is_active is True %}
 <p>{{ total_bids }} bid{{ total_bids|pluralize }} ha{{ total_bids|pluralize:"s,ve" }} been placed so far</p>
 <form action="{% url 'auction_view' auction_item.id %}" method="post">
     {% csrf_token %}
     {{ bid_form.as_p }}
 
-    <!-- {% for error in bid_form.price.errors %}
-    <p style="color: red;">{{ error }}</p>
-    {% endfor %} -->
-    <input type="submit" value="Place Bid">
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Place Bid">
 </form>
-&nbsp;
+{% endif %}
+
 <h3>Details</h3>
 <ul>
     <li>Listed by {{ auction_item.creator.username }}</li>
     <li>Posted on {{ auction_item.creation_date|date:"l, F j Y" }} at {{ auction_item.creation_date|time }}</li>
+    {% if auction_item.is_active is False %}
+    <li>Closed on {{ auction_item.closing_date|date:"l, F j Y"}} at {{ auction_item.closing_date|time }}</li>
+    {% endif %}
 </ul>
+
+<!-- TODO: -->
+{% if auction_item.is_active is True and user == auction_item.creator and auction_item.bids.count > 0 %}
+<form action="{% url 'close_auction' auction_item.id %}" method="post">
+    {% csrf_token %}
+    <input
+        style="color: whitesmoke; border-color: crimson; background-color: crimson; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Close Auction">
+</form>
+{% endif %}
+
 <hr>
 <h3>Comments</h3>
 <ul style="list-style-type: none;">
@@ -68,11 +100,15 @@
     {% endfor %}
 </ul>
 
+{% if auction_item.is_active is True %}
 <form action="{% url 'new_comment' auction_item.id %}" method="post">
     {% csrf_token %}
     {{ comment_form.as_p }}
-    <input type="submit" value="Post Comment">
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Post Comment">
 </form>
+{% endif %}
 
 
 {% endblock %}
