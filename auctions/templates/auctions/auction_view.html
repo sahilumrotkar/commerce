@@ -72,20 +72,29 @@
 <ul>
     <li>Listed by {{ auction_item.creator.username }}</li>
     <li>Posted on {{ auction_item.creation_date|date:"l, F j Y" }} at {{ auction_item.creation_date|time }}</li>
+    <li>Last modified on {{ auction_item.last_modified|date:"l, F j Y" }} at {{ auction_item.last_modified|time }}</li>
     {% if auction_item.is_active is False %}
     <li>Closed on {{ auction_item.closing_date|date:"l, F j Y"}} at {{ auction_item.closing_date|time }}</li>
     {% endif %}
 </ul>
 
-<!-- TODO: -->
-{% if auction_item.is_active is True and user == auction_item.creator and auction_item.bids.count > 0 %}
-<form action="{% url 'close_auction' auction_item.id %}" method="post">
-    {% csrf_token %}
-    <input
-        style="color: whitesmoke; border-color: crimson; background-color: crimson; border-style: solid; padding: 7px; border-radius: 5px;"
-        type="submit" value="Close Auction">
-</form>
-{% endif %}
+<div style="display: flex; flex-direction: row;">
+    {% if auction_item.is_active is True and user == auction_item.creator and auction_item.bids.count > 0 %}
+    <form action="{% url 'close_auction' auction_item.id %}" method="post">
+        {% csrf_token %}
+        <input
+            style="color: whitesmoke; border-color: crimson; background-color: crimson; border-style: solid; padding: 7px; border-radius: 5px; margin-right: 12px;"
+            type="submit" value="Close Auction">
+    </form>
+    {% endif %}
+
+    {% if user == auction_item.creator %}
+
+    <a href="{% url 'update_auction_item' auction_item.id %}" class="btn btn-primary">Edit
+        Auction</a>
+
+    {% endif %}
+</div>
 
 <hr>
 <h3>Comments</h3>

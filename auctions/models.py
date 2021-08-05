@@ -35,8 +35,7 @@ class AuctionItem(models.Model):
     current_price = models.DecimalField(max_digits=8, decimal_places=2)
     item_image = models.ImageField(
         upload_to=get_image_path,
-        blank=True,
-        null=True
+        default='default.png'
     )
     category = models.ForeignKey(
         Category,
@@ -61,6 +60,7 @@ class AuctionItem(models.Model):
     # TODO: Add code to controller to display creation date in user's timezone
     creation_date = models.DateTimeField(auto_now_add=True)
     closing_date = models.DateTimeField(blank=True, null=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Item: {self.title} listed by {self.creator.username}"

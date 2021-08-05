@@ -7,24 +7,39 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.forms import ModelForm, widgets, Textarea
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import User, AuctionItem, Comment, Category, Bid
 from datetime import datetime
 
 
 class AuctionItemForm(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.has_bids = kwargs.pop('has_bids', None)
+        super(AuctionItemForm, self).__init__(*args, **kwargs)
+        if self.has_bids is not None and self.has_bids == 1:
+            del self.fields['current_price']
+
     class Meta:
         model = AuctionItem
         exclude = ['creator', 'is_active', 'winner',
                    'creation_date', 'closing_date']
-        # widgets = {
-        #     'item_image': widgets.Input(attrs={
-        #         'type': "file",
-        #         'name': "item_image",
-        #         'accept': "image/*",
-        #         'style': "border-style: solid; padding: 7px; border-radius: 5px;"
-        #     })
-        # }
+
+
+# def create_edit_auction_item_form(has_bids=True):
+
+#     class EditAuctionItemForm(ModelForm):
+
+#         class Meta:
+#             model = AuctionItem
+#             exclude = ['creator', 'is_active', 'winner',
+#                        'creation_date', 'closing_date']
+
+#             if has_bids:
+#                 exclude.append('current_price')
+
+#     return EditAuctionItemForm
 
 
 class BidForm(ModelForm):
@@ -336,3 +351,49 @@ def close_auction(request, auction_id):
     else:
         # TODO: render forbidden template
         pass
+
+
+def update_auction_item(request, auction_id):
+
+    try:
+        auction_item = AuctionItem.objects.get(pk=auction_id)
+    except ObjectDoesNotExist:
+        # render does not exist template
+        pass
+
+    has_bids = 1 if auction_item.bids.count() > 0 else 0
+
+    if request.method == 'POST':
+
+        auction_item_form = AuctionItemForm(
+            request.POST, request.FILES, instance=auction_item, has_bids=has_bids)
+
+        if auction_item_form.is_valid():
+
+            auction_item_form.save()
+
+            return render(request, "auctions/auction_view.html", {
+                'auction_item': auction_item,
+                'bid_form': BidForm(),
+                'total_bids': auction_item.bids.count(),
+                'comment_form': CommentForm(),
+                'success_message': "Auction has been updated successfully"
+            })
+
+        else:
+            return render(request, "auctions/update_auction.html", {
+                'auction_item': auction_item,
+                'auction_item_form': auction_item_form,
+                'title': f"Error Updating {auction_item.title}"
+            })
+
+    else:
+
+        auction_item_form = AuctionItemForm(
+            instance=auction_item, has_bids=has_bids)
+
+        return render(request, "auctions/update_auction.html", {
+            'auction_item': auction_item,
+            'auction_item_form': auction_item_form,
+            'title': f"Update {auction_item.title}"
+        })
