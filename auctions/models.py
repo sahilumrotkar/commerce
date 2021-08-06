@@ -21,6 +21,9 @@ class User(AbstractUser):
         # return f"{self.first_name} {self.last_name}"
         return f"{self.username}"
 
+    def get_latest_bid_for_auction(self, auction):
+        return self.bids.filter(auction_item=auction).latest('creation_date')
+
 
 class Category(models.Model):
     name = models.CharField(max_length=64)
@@ -99,6 +102,12 @@ class Comment(models.Model):
         AuctionItem,
         on_delete=models.CASCADE,
         related_name='comments'
+    )
+    parent_comment = models.ForeignKey(
+        'self',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='children'
     )
     # TODO: Add code to controller to display creation date in user's timezone
     creation_date = models.DateTimeField(auto_now_add=True)

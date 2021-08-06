@@ -80,7 +80,8 @@ class BidForm(ModelForm):
 class CommentForm(ModelForm):
     class Meta:
         model = Comment
-        exclude = ['creator', 'parent_auction', 'creation_date']
+        exclude = ['creator', 'parent_auction',
+                   'creation_date', 'parent_comment']
         labels = {
             'text': ""
         }
@@ -244,7 +245,8 @@ def new_comment(request, auction_id):
                 'comment_error': "Failed to add comment.",
                 'auction_item': auction_item,
                 'bid_form': BidForm(),
-                'total_bids': auction_item.bids.count()
+                'total_bids': auction_item.bids.count(),
+                'comment_form': form
             })
 
     else:
@@ -397,3 +399,10 @@ def update_auction_item(request, auction_id):
             'auction_item_form': auction_item_form,
             'title': f"Update {auction_item.title}"
         })
+
+# handles deleting/canceling (if 1 or more bids have been placed) an auction item
+
+
+def delete_auction_item(request, auction_id):
+
+    pass

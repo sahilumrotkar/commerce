@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load auctions_extras %}
 
 {% block title %}
 {{ auction_item.title }}
@@ -21,23 +22,36 @@
     {% endif %}
 </h2>
 
-{% if user in auction_item.watched_by.all %}
-<p style="background-color: lightgreen; width: 87px; padding: 9px; border-radius: 5px;">Watching</p>
-<form action="{% url 'update_watchlist' user.id auction_item.id %}" method="post">
-    {% csrf_token %}
-    <input
-        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
-        type="submit" value="Remove From Watchlist">
-</form>
+{% if user != auction_item.creator %}
+
+{% if user|has_bid_on_auction:auction_item %}
+<p style="background-color: lightgreen; width: 74px; padding: 9px; border-radius: 5px; margin-left: 0px;">Bidding</p>
 {% else %}
-<p style="background-color: lightcoral; width: 117px; padding: 9px; border-radius: 5px;">Not Watching</p>
-<form action="{% url 'update_watchlist' user.id auction_item.id %}" method="post">
-    {% csrf_token %}
-    <input
-        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
-        type="submit" value="Add To Watchlist">
-</form>
+<p style="background-color: lightcoral; width: 107px; padding: 9px; border-radius: 5px; margin-left: 0px;">Not Bidding
+</p>
 {% endif %}
+
+{% endif %}
+
+<div style="display: flex; flex-direction: row;">
+    {% if user in auction_item.watched_by.all %}
+    <p style="background-color: lightgreen; width: 87px; padding: 9px; border-radius: 5px;">Watching</p>
+    <form action="{% url 'update_watchlist' user.id auction_item.id %}" method="post">
+        {% csrf_token %}
+        <input
+            style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px; margin-left: 9px;"
+            type="submit" value="Remove From Watchlist">
+    </form>
+    {% else %}
+    <p style="background-color: lightcoral; width: 117px; padding: 9px; border-radius: 5px;">Not Watching</p>
+    <form action="{% url 'update_watchlist' user.id auction_item.id %}" method="post">
+        {% csrf_token %}
+        <input
+            style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px; margin-left: 9px;"
+            type="submit" value="Add To Watchlist">
+    </form>
+    {% endif %}
+</div>
 
 
 &nbsp;
@@ -57,7 +71,39 @@
 </p>
 
 {% if auction_item.is_active is True %}
+
 <p>{{ total_bids }} bid{{ total_bids|pluralize }} ha{{ total_bids|pluralize:"s,ve" }} been placed so far</p>
+
+{% if user != auction_item.creator %}
+
+{% if user|has_bid_on_auction:auction_item %}
+
+{% if auction_item.get_highest_bid.creator == user %}
+<p>You are currently the top bidder with a bid amount of ${{user|latest_bid_price_for_auction:auction_item}}</p>
+{% else %}
+
+<p>
+    {% with price=user|latest_bid_price_for_auction:auction_item %}
+
+    There {{ auction_item|number_of_higher_bids:price|pluralize:"is, are" }}
+    {{auction_item|number_of_higher_bids:price}}
+    higher bid{{ auction_item|number_of_higher_bids:price|pluralize }} than your most recent bid of ${{ price }}
+
+    {% endwith %}
+</p>
+
+{% endif %}
+
+<form action="{% url 'auction_view' auction_item.id %}" method="post">
+    {% csrf_token %}
+    {{ bid_form.as_p }}
+
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Update Bid">
+</form>
+
+{% else %}
 <form action="{% url 'auction_view' auction_item.id %}" method="post">
     {% csrf_token %}
     {{ bid_form.as_p }}
@@ -66,6 +112,11 @@
         style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
         type="submit" value="Place Bid">
 </form>
+
+{% endif %}
+
+{% endif %}
+
 {% endif %}
 
 <h3>Details</h3>
@@ -88,7 +139,7 @@
     </form>
     {% endif %}
 
-    {% if user == auction_item.creator %}
+    {% if user == auction_item.creator and auction_item.is_active %}
 
     <a href="{% url 'update_auction_item' auction_item.id %}" class="btn btn-primary">Edit
         Auction</a>
