@@ -17,9 +17,6 @@
 
 <h2>
     {{ auction_item.title }}
-    {% if auction_item.is_active is not True %}
-    (Closed)
-    {% endif %}
 </h2>
 
 {% if user != auction_item.creator %}

@@ -351,9 +351,11 @@ def close_auction(request, auction_id):
         if auction_item_qs:
             auction_item = auction_item_qs.first()
             winner = auction_item.get_highest_bid().creator
+            title = f"{auction_item.title} (Closed)"
             auction_item.winner = winner
             auction_item.closing_date = datetime.now()
             auction_item.is_active = False
+            auction_item.title = title
             auction_item.save()
 
             return render(request, "auctions/auction_view.html", {
