@@ -272,6 +272,24 @@ def category_view(request, category_name):
     })
 
 
+def display_all_auction_items(request):
+    auction_items = AuctionItem.objects.all()
+
+    return render(request, "auctions/auction_list_view.html", {
+        'auction_list': auction_items,
+        'title': "All Auctions"
+    })
+
+
+def display_closed_auction_items(request):
+    auction_items = AuctionItem.objects.filter(is_active=False)
+
+    return render(request, "auctions/auction_list_view.html", {
+        'auction_list': auction_items,
+        'title': "Closed Auctions"
+    })
+
+
 def watchlist_view(request, user_id):
 
     user_qs = User.objects.filter(pk=user_id)

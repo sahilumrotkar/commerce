@@ -66,6 +66,14 @@
         Current Price: ${{ auction_item.current_price }}
         {% else %}
         Sold For ${{ auction_item.current_price }} to {{ auction_item.winner.username }}
+
+        {% if auction_item.winner == user %}
+        <p>Congratulations, you have won this auction.</p>
+        {% elif user|has_bid_on_auction:auction_item %}
+        <p>Your bid of ${{ user|latest_bid_price_for_auction:auction_item }} lost this auction.</p>
+
+        {% endif %}
+
         {% endif %}
     </strong>
 </p>
@@ -105,11 +113,16 @@
 
 {% else %}
 <form action="{% url 'auction_view' auction_item.id %}" method="post">
+    {{ bid_form.non_field_errors }}
     {% csrf_token %}
-    {{ bid_form.as_p }}
+    <p style="margin: 0px;">{{ bid_form.price.label_tag }}</p>
+    <p style="margin-bottom: 9px;">{{ bid_form.price }}</p>
+    {% for error in bid_form.price.errors %}
+    <p style="color: red;">{{ error }}</p>
+    {% endfor %}
 
     <input
-        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px; margin-bottom: 17px;"
         type="submit" value="Place Bid">
 </form>
 

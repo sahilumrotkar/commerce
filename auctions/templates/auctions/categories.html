@@ -7,6 +7,8 @@ Categories
 {% block body %}
 <h2>Categories</h2>
 <ul>
+    <li><a href="{% url 'all_auction_items' %}">All Auctions</a></li>
+    <li><a href="{% url 'closed_auction_items' %}">Closed Auctions</a></li>
     {% for category in categories %}
     <li><a href="{% url 'category_view' category.name %}">{{ category }}</a></li>
     {% endfor %}
