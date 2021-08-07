@@ -1,0 +1,22 @@
+{% extends 'auctions/layout.html' %}
+
+{% block title %}
+{{ user.username }}'s Auctions
+{% endblock %}
+
+{% block body %}
+
+<h3>Auctions Created</h3>
+
+<div style="margin-left: 77px; padding: 27px;">
+    <h4>Active Auctions</h4>
+    {% include 'auctions/auction_list_template.html' with auction_list=auctions_created_active small_title="1" %}
+
+    <h4>Closed Auctions</h4>
+    {% include 'auctions/auction_list_template.html' with auction_list=auctions_created_closed %}
+</div>
+
+<h3>Auctions Won</h3>
+{% include 'auctions/auction_list_template.html' with auction_list=auctions_won %}
+
+{% endblock %}

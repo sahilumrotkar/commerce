@@ -1,0 +1,35 @@
+{% for auction_item in auction_list %}
+
+<div style="display: flex; flex-direction: row; justify-content: flex-start;">
+    <div style="padding: 12px;">
+        <img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" width="150px" height="150px"
+            style="object-fit: contain;">
+    </div>
+
+    <div style="padding: 12px;">
+        <a href="{% url 'auction_view' auction_item.id %}">
+            <h5>{{ auction_item.title }}</h5>
+        </a>
+        <p><strong>
+                {% if auction_item.is_active %}
+                ${{ auction_item.current_price }}
+                {% else %}
+                Sold for ${{ auction_item.current_price }} to {{ auction_item.winner }}
+                {% endif %}
+            </strong></p>
+        <p>Listed by {{ auction_item.creator.username }}</p>
+        <p>Created on {{ auction_item.creation_date|date:"l, F j Y" }} at {{ auction_item.creation_date|time }}</p>
+
+        {% if auction_item.is_active %}
+        <p>{{ auction_item.bids.count }} bid{{ auction_item.bids.count|pluralize }}</p>
+        {% else %}
+        <p>Closed on {{ auction_item.closing_date|date:"l, F j Y" }} at {{ auction_item.closing_date|time }}</p>
+        {% endif %}
+    </div>
+
+</div>
+<hr>
+{% empty %}
+<p>No items.</p>
+
+{% endfor %}

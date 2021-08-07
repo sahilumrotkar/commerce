@@ -429,3 +429,37 @@ def update_auction_item(request, auction_id):
 def delete_auction_item(request, auction_id):
 
     pass
+
+
+def user_profile(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+    except ObjectDoesNotExist:
+        # return user does not exist template
+        pass
+
+    return render(request, "auctions/user_profile.html")
+
+
+def user_bids(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+    except ObjectDoesNotExist:
+        # return user does not exist template
+        pass
+
+    return None
+
+
+def user_auctions(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+    except ObjectDoesNotExist:
+        # return user does not exist template
+        pass
+
+    return render(request, "auctions/user_auctions.html", {
+        'auctions_won': user.auctions_won.all(),
+        'auctions_created_active': user.auctions_created.filter(is_active=True),
+        'auctions_created_closed': user.auctions_created.filter(is_active=False)
+    })

@@ -36,6 +36,9 @@
             <a class="nav-link" href="{% url 'new_auction' %}">Create New Auction</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="{% url 'user_profile' user.id %}">Profile</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
         </li>
         {% else %}

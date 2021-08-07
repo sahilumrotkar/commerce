@@ -7,31 +7,7 @@
 {% block body %}
 <h2>{{ title }}</h2>
 
-{% if auction_list.count == 0 %}
-<p>No Items.</p>
-{% endif %}
-
 &nbsp;
-{% for auction_item in auction_list %}
-
-<div style="display: flex; flex-direction: row; justify-content: flex-start;">
-    <div style="padding: 12px;">
-        <img src="{{ auction_item.item_image.url }}" alt="Image Not Provided" width="250px" height="250px"
-            style="object-fit: contain;">
-    </div>
-
-    <div style="padding: 12px;">
-        <a href="{% url 'auction_view' auction_item.id %}">
-            <h3>{{ auction_item.title }}</h3>
-        </a>
-        <p><strong>${{ auction_item.current_price }}</strong></p>
-        <p>Created on {{ auction_item.creation_date|date:"l, F j Y" }} at {{ auction_item.creation_date|time }}</p>
-        <p>{{ auction_item.bids.count }} bid{{ auction_item.bids.count|pluralize }}</p>
-    </div>
-
-</div>
-<hr>
-
-{% endfor %}
+{% include 'auctions/auction_list_template.html' with auction_list=auction_list %}
 
 {% endblock %}
