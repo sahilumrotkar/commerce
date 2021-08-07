@@ -100,16 +100,6 @@
 {% endif %}
 
 <form action="{% url 'auction_view' auction_item.id %}" method="post">
-    {% csrf_token %}
-    {{ bid_form.as_p }}
-
-    <input
-        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
-        type="submit" value="Update Bid">
-</form>
-
-{% else %}
-<form action="{% url 'auction_view' auction_item.id %}" method="post">
     {{ bid_form.non_field_errors }}
     {% csrf_token %}
     <p style="margin: 0px;">{{ bid_form.price.label_tag }}</p>
@@ -118,6 +108,14 @@
     <p style="color: red;">{{ error }}</p>
     {% endfor %}
 
+    <input
+        style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px;"
+        type="submit" value="Update Bid">
+</form>
+
+{% else %}
+<form action="{% url 'auction_view' auction_item.id %}" method="post">
+    {% include 'auctions/form_template.html' with form=bid_form %}
     <input
         style="border-color: lightgrey; background-color: lightgrey; border-style: solid; padding: 7px; border-radius: 5px; margin-bottom: 17px;"
         type="submit" value="Place Bid">

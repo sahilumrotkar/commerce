@@ -62,6 +62,9 @@ class BidForm(ModelForm):
                 'step': '0.01'
             })
         }
+        help_texts = {
+            'price': "Enter an amount greater than the current price."
+        }
 
     def clean_price(self):
         price = self.cleaned_data.get('price')

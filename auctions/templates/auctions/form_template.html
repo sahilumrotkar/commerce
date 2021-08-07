@@ -1,0 +1,15 @@
+{{ form.non_field_errors }}
+{% csrf_token %}
+
+{% for field in form %}
+
+<p style="margin-bottom: 0px;">{{ field.label_tag }}</p>
+<p style="margin-bottom: 12px;">{{ field }}</p>
+
+<p class="help">{{ field.help_text }}</p>
+
+{% for error in field.errors %}
+<p style="color: red;">{{ error }}</p>
+{% endfor %}
+
+{% endfor %}
